@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from datetime import datetime
 from bson import ObjectId
-from .database import students_collection, users_collection, db
+from app.database import students_collection, users_collection, db
 
 app = FastAPI()
 
