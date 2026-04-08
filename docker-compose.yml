@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Dịch vụ Database
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Dịch vụ Backend (Code của bạn)
+  app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/
+
+volumes:
+  mongo_data:

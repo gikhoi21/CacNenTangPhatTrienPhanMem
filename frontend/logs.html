@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhật ký Hệ thống - Văn Lang</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .log-item {
+            transition: all 0.3s;
+            border-left: 4px solid #2563eb;
+        }
+        .log-item:hover {
+            background-color: #f1f5f9;
+            transform: translateX(5px);
+        }
+        .timestamp {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand">🎓 Văn Lang</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" href="index.html">Sinh viên</a>
+                <a class="nav-link" href="grades.html">Điểm số</a>
+                <a class="nav-link active" href="logs.html">Nhật ký</a>
+            </div>
+            <button onclick="logout()" class="btn btn-outline-danger btn-sm">Đăng xuất</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card shadow-sm border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">📜 Nhật ký hoạt động hệ thống</h4>
+                <button onclick="loadLogs()" class="btn btn-outline-primary btn-sm">🔄 Làm mới</button>
+            </div>
+            
+            <div id="logContainer">
+                <div class="text-center text-muted py-5">Đang tải dữ liệu nhật ký...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Kiểm tra đăng nhập
+        if (localStorage.getItem("isLoggedIn") !== "true") window.location.href = "login.html";
+
+        const API = "http://127.0.0.1:8000";
+
+        async function loadLogs() {
+            try {
+                const res = await fetch(API + "/logs");
+                const logs = await res.json();
+                const container = document.getElementById("logContainer");
+                
+                if (logs.length === 0) {
+                    container.innerHTML = `<div class="alert alert-info">Chưa có hoạt động nào được ghi lại.</div>`;
+                    return;
+                }
+
+                container.innerHTML = logs.map(l => `
+                    <div class="card log-item mb-2 p-3 shadow-sm border-0 bg-white">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-primary mb-2">${l.user}</span>
+                                <p class="mb-0 text-dark">${l.action}</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="timestamp">${l.timestamp}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById("logContainer").innerHTML = 
+                    `<div class="alert alert-danger">Lỗi kết nối Server: Hãy chắc chắn Docker đang chạy!</div>`;
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        // Tự động tải logs khi mở trang
+        loadLogs();
+    </script>
+</body>
+</html>
